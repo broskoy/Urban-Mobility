@@ -1,20 +1,15 @@
 import simpy
 import random
 import math
+from utility import *
 
 
 NUM_BIKERS = 5 # number of cargo-bike riders
 CAPACITY_RANGE = (2, 4) # parcels per bike
 BIKE_SPEED = 200 # average riding speed meters/minute 
-ARRIVAL_RATE = 1.0 # λ per hour (poisson) — editable (DEMAND)
-SERVICE_TIME = 2  # minutes to load/unload
-LOCATIONS = {
-    'Acht':             (5.450, 51.447),
-    'Het Ven':          (5.483, 51.442),
-    'Tongelre':         (5.477, 51.460),
-    'Strijps Centrum':  (5.450, 51.430),
-    'Centrum':          (5.480, 51.440)
-}
+LOAD_TIME = 2  # minutes to load/unload
+ARRIVAL_RATE = 1.0 # λ per hour (poisson)
+
 
 
 # Compute ride time between two coords (REPLACE BY GOOGLE MAPS)
@@ -39,7 +34,7 @@ def biker(env, name, dispatcher):
         
         # Loading the package
         print(f'[{env.now:.1f} min] {name} arrived at {origin} for pickup')
-        yield env.timeout(random.gauss(SERVICE_TIME, 0.5))  # load
+        yield env.timeout(random.gauss(LOAD_TIME, 0.5))  # load
 
         # Go to destination
         print(f'[{env.now:.1f} min] {name} riding to {dest}')
@@ -47,7 +42,7 @@ def biker(env, name, dispatcher):
         
         # Deliver the package
         print(f'[{env.now:.1f} min] {name} arrived at {dest} for drop-off')
-        yield env.timeout(random.gauss(SERVICE_TIME, 0.5))  # unload
+        yield env.timeout(random.gauss(LOAD_TIME, 0.5))  # unload
 
         # Update position
         now_loc = dest
