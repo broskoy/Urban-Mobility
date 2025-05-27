@@ -1,0 +1,33 @@
+
+<Drones>
+*
+If package is available deliver 
+Dock at the other hub
+Return to previous hub
+Charge
+Repeat *
+
+
+<Bikes>
+Employee goes to hub for bike 
+*
+Takes package
+Starts biking
+Delivers package
+Goes to another hub
+Repeat *
+Drop bike at hub and go home
+
+
+<Hub>
+Has charging spots
+Contains a number of packages
+
+
+<Store staff>
+*
+Wait random time
+Has package and goes to hub
+Drops package
+Returns to store
+Repeat *
