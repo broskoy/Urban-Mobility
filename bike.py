@@ -2,9 +2,12 @@ import simpy
 import random
 import math
 
-# Parameters - EDITABLE
+
 NUM_BIKERS = 5 # number of cargo-bike riders
 CAPACITY_RANGE = (2, 4) # parcels per bike
+BIKE_SPEED = 200 # average riding speed meters/minute 
+ARRIVAL_RATE = 1.0 # λ per hour (poisson) — editable (DEMAND)
+SERVICE_TIME = 2  # minutes to load/unload
 LOCATIONS = {
     'Acht':             (5.450, 51.447),
     'Het Ven':          (5.483, 51.442),
@@ -12,38 +15,44 @@ LOCATIONS = {
     'Strijps Centrum':  (5.450, 51.430),
     'Centrum':          (5.480, 51.440)
 }
-AVG_SPEED_KMH = 15 # average riding speed
-ARRIVAL_RATE = 1.0 # λ per hour (poisson) — editable (DEMAND)
-SERVICE_TIME = 3  # minutes to load/unload
-SIM_TIME = 8 * 60 # simulated period (8 hours)
+
 
 # Compute ride time between two coords (REPLACE BY GOOGLE MAPS)
 def ride_time(origin, dest):
     dx = LOCATIONS[origin][0] - LOCATIONS[dest][0]
     dy = LOCATIONS[origin][1] - LOCATIONS[dest][1]
-    km = math.hypot(dx, dy) * 111
-    return km / AVG_SPEED_KMH * 60 # convert to minutes
+    meters = math.hypot(dx, dy) * 111000
+    return meters / BIKE_SPEED # convert to minutes
+
 
 # Biking
 def biker(env, name, dispatcher):
     now_loc = random.choice(list(LOCATIONS))
+
     while True:
         req = yield dispatcher.get_request()
         origin, dest = req
+
+        # Going to pick up the package
         print(f'[{env.now:.1f} min] {name} assigned to pickup at {origin}, heading from {now_loc}')
         yield env.timeout(ride_time(now_loc, origin))
         
+        # Loading the package
         print(f'[{env.now:.1f} min] {name} arrived at {origin} for pickup')
         yield env.timeout(random.gauss(SERVICE_TIME, 0.5))  # load
 
+        # Go to destination
         print(f'[{env.now:.1f} min] {name} riding to {dest}')
         yield env.timeout(ride_time(origin, dest))
         
+        # Deliver the package
         print(f'[{env.now:.1f} min] {name} arrived at {dest} for drop-off')
         yield env.timeout(random.gauss(SERVICE_TIME, 0.5))  # unload
 
+        # Update position
         now_loc = dest
         dispatcher.free_biker(name)
+
 
 # Requests
 class Dispatcher:
@@ -72,16 +81,11 @@ class Dispatcher:
 def parcel_generator(env, dispatcher):
     while True:
         yield env.timeout(random.expovariate(ARRIVAL_RATE/60))
+
+        # Add origin and detination 
         origin = random.choice(list(LOCATIONS))
         dest = random.choice([l for l in LOCATIONS if l != origin])
         print(f'[{env.now:.1f} min] New parcel request: {origin} → {dest}')
         dispatcher.dispatch((origin, dest))
 
-env = simpy.Environment()
-disp = Dispatcher(env)
-# create bikers
-for i in range(NUM_BIKERS):
-    b = env.process(biker(env, f'Biker_{i}', disp))
-    disp.register(f'Biker_{i}')
-env.process(parcel_generator(env, disp))
-env.run(until=SIM_TIME)
+
