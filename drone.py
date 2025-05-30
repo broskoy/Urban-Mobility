@@ -2,6 +2,7 @@ import simpy
 import random
 import math
 from utility import *
+from package import *
 
 
 DRONES_PER_HUB = 1 # number of drones per hub
@@ -50,9 +51,14 @@ class Drone:
 # This class handles the behaviour of a hub
 class Hub:
 
+    packages = []
+
     def __init__(self, env):
         self.env = env
         self.action = env.process(self.run())
+
+    def add_package(self, package):
+        print(package.id)
 
     def run(self):
         while True:
