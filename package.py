@@ -1,6 +1,9 @@
 
 
 class Package:
-    id = 0
-    origin = ''
-    destination = ''
+
+    def __init__(self):
+        self.number = 0
+        self.origin = ''
+        self.destination = ''
+    

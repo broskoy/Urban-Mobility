@@ -2,7 +2,7 @@ import simpy
 import random
 import math
 from utility import *
-from package import *
+from package import Package
 
 
 DRONES_PER_HUB = 1 # number of drones per hub
@@ -77,22 +77,35 @@ class Store:
     def __init__(self, env):
         self.env = env
         # Start the run process everytime an instance is created.
-        self.action = env.process(self.run())
+        # self.action = 
+        env.process(self.run())
 
     def run(self):
         while True:
             yield self.env.timeout(random.expovariate(1/60))
 
-            # Update package number
-            Store.package_number += 1
-
-            # Add origin and detination 
-            origin = random.choice(list(LOCATIONS))
-            destination = random.choice([l for l in LOCATIONS if l != origin])
+            # TODO: should call server for a unique number
+            # Add number origin and detination
+            package = Package()
+            Store.package_number += 1 
+            package.number = self.package_number
+            package.origin = random.choice(list(LOCATIONS))
+            package.destination = random.choice([l for l in LOCATIONS if l != package.origin])
 
             # Print the full request
-            print(f'[{self.env.now:.1f} min] New package request: id {Store.package_number}, {origin} → {destination}')
+            print(f'[{self.env.now:.1f} min] New package request: number {Store.package_number}, {package.origin} → {package.destination}')
 
             # Store staff delivers to hub
             yield self.env.timeout(10)
-            print(f'[{self.env.now:.1f} min] Package {Store.package_number} dropped at {origin}')
+            print(f'[{self.env.now:.1f} min] Package {Store.package_number} dropped at {package.origin}')
+
+
+# This class acts as the central server of the app
+class Server: 
+    
+    package_number: int = 0
+
+    # returns a unique package number
+    def get_number(self):
+        self.package_number += 1
+        return self.package_number
