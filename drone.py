@@ -82,7 +82,7 @@ class Store:
 
     def run(self):
         while True:
-            yield self.env.timeout(random.expovariate(1/60))
+            yield self.env.timeout(random.expovariate(1.0/60))
 
             # TODO: should call server for a unique number
             # Add number origin and detination

@@ -8,7 +8,7 @@ NUM_BIKERS = 5 # number of cargo-bike riders
 CAPACITY_RANGE = (2, 4) # parcels per bike
 BIKE_SPEED = 200 # average riding speed meters/minute 
 LOAD_TIME = 2  # minutes to load/unload
-ARRIVAL_RATE = 1.0 # λ per hour (poisson)
+ARRIVAL_RATE = 1.0 / 60 # events per hour
 
 
 
@@ -16,7 +16,7 @@ ARRIVAL_RATE = 1.0 # λ per hour (poisson)
 def ride_time(origin, dest):
     dx = LOCATIONS[origin][0] - LOCATIONS[dest][0]
     dy = LOCATIONS[origin][1] - LOCATIONS[dest][1]
-    meters = math.hypot(dx, dy) * 111000
+    meters = math.hypot(dx, dy) * 111000 # convert from global coordinates
     return meters / BIKE_SPEED # convert to minutes
 
 
@@ -75,7 +75,7 @@ class Dispatcher:
 # demand
 def parcel_generator(env, dispatcher):
     while True:
-        yield env.timeout(random.expovariate(ARRIVAL_RATE/60))
+        yield env.timeout(random.expovariate(ARRIVAL_RATE))
 
         # Add origin and detination 
         origin = random.choice(list(LOCATIONS))
