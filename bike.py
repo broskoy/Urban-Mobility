@@ -12,12 +12,18 @@ ARRIVAL_RATE = 1.0 / 60 # events per hour
 
 
 
-# Compute ride time between two coords (REPLACE BY GOOGLE MAPS)
+# Lookup travel time (minutes) between locker locations
 def ride_time(origin, dest):
-    dx = LOCATIONS[origin][0] - LOCATIONS[dest][0]
-    dy = LOCATIONS[origin][1] - LOCATIONS[dest][1]
-    meters = math.hypot(dx, dy) * 111000 # convert from global coordinates
-    return meters / BIKE_SPEED # convert to minutes
+    if origin == dest:
+        return 0
+    # direct lookup if exists
+    if origin in TRAVEL_TIME and dest in TRAVEL_TIME[origin]:
+        return TRAVEL_TIME[origin][dest]
+    # fallback to symmetric lookup
+    if dest in TRAVEL_TIME and origin in TRAVEL_TIME[dest]:
+        return TRAVEL_TIME[dest][origin]
+    # if no direct route defined, return a large default or zero
+    return 0
 
 
 # Biking
