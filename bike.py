@@ -12,7 +12,7 @@ ARRIVAL_RATE = 1.0 / 60 # events per hour
 
 
 
-# Lookup travel time (minutes) between locker locations
+# Lookup travel time (minutes) between locker locations FOR BIKES!
 def ride_time(origin, dest):
     if origin == dest:
         return 0
