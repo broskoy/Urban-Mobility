@@ -9,7 +9,7 @@ SIM_TIME = 8 * 60 # simulated period (8 hours)
 # env = simpy.Environment()
 # # Drone(env)
 # # Hub(env)
-# # Store(env)
+# Store(env)
 # env.run(until=SIM_TIME)
 
 

@@ -1,7 +1,7 @@
 import simpy
 import random
 import math
-from utility import *
+from locations import *
 from package import Package
 
 
@@ -12,6 +12,8 @@ LOAD_TIME = 2  # minutes to load/unload
 
 # This class handles the behaviour of a drone
 class Drone:
+
+    package = None
 
     def __init__(self, env):
         self.env = env
@@ -63,9 +65,9 @@ class Hub:
     def run(self):
         while True:
             yield self.env.timeout(20)
-            print('Start parking and charging at %d' % self.env.now)
+            print('Start charging at %d' % self.env.now)
             yield self.env.timeout(20)
-            print('Start driving at %d' % self.env.now)
+            print('Start deply at %d' % self.env.now)
 
 
 
@@ -74,10 +76,9 @@ class Store:
 
     package_number: int = 0
 
+    # Start the run process everytime an instance is created.
     def __init__(self, env):
         self.env = env
-        # Start the run process everytime an instance is created.
-        # self.action = 
         env.process(self.run())
 
     def run(self):
@@ -96,7 +97,8 @@ class Store:
             print(f'[{self.env.now:.1f} min] New package request: number {Store.package_number}, {package.origin} → {package.destination}')
 
             # Store staff delivers to hub
-            yield self.env.timeout(10)
+            walking_time = random.gauss(10, 1)
+            yield self.env.timeout(walking_time)
             print(f'[{self.env.now:.1f} min] Package {Store.package_number} dropped at {package.origin}')
 
 

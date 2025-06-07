@@ -1,7 +1,7 @@
 import simpy
 import random
 import math
-from utility import *
+from locations import *
 
 
 NUM_BIKERS = 5 # number of cargo-bike riders
@@ -14,11 +14,13 @@ ARRIVAL_RATE = 1.0 / 60 # events per hour
 
 # Lookup travel time (minutes) between locker locations FOR BIKES!
 def ride_time(origin, dest):
+    return 10
     if origin == dest:
         return 0
     # direct lookup if exists
     if origin in TRAVEL_TIME and dest in TRAVEL_TIME[origin]:
-        return TRAVEL_TIME[origin][dest]
+        # random.gauss(TRAVEL_TIME[origin][dest], 1)
+        return TRAVEL_TIME[dest][origin]
     # fallback to symmetric lookup
     if dest in TRAVEL_TIME and origin in TRAVEL_TIME[dest]:
         return TRAVEL_TIME[dest][origin]
