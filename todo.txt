@@ -1,1 +1,2 @@
-drone run should call server to ger package number
+
+hub should create four drones

@@ -55,51 +55,49 @@ class Hub:
 
     packages = []
 
-    def __init__(self, env):
+    def __init__(self, env, location):
         self.env = env
         self.action = env.process(self.run())
+        self.location = location
+        print(f'Hub created at {self.location}')
 
     def add_package(self, package):
         print(package.id)
 
     def run(self):
         while True:
-            yield self.env.timeout(20)
-            print('Start charging at %d' % self.env.now)
-            yield self.env.timeout(20)
-            print('Start deply at %d' % self.env.now)
+            yield self.env.timeout(20000)
 
 
 
 # This class handles the behaviour of a store
 class Store:
 
-    package_number: int = 0
-
     # Start the run process everytime an instance is created.
-    def __init__(self, env):
+    def __init__(self, env, server, location):
         self.env = env
+        self.server = server
+        self.location = location
         env.process(self.run())
 
     def run(self):
         while True:
             yield self.env.timeout(random.expovariate(1.0/60))
 
-            # TODO: should call server for a unique number
             # Add number origin and detination
             package = Package()
-            Store.package_number += 1 
-            package.number = self.package_number
-            package.origin = random.choice(list(LOCATIONS))
+            package.number = self.server.get_number()
+            package.origin = self.location
             package.destination = random.choice([l for l in LOCATIONS if l != package.origin])
 
             # Print the full request
-            print(f'[{self.env.now:.1f} min] New package request: number {Store.package_number}, {package.origin} → {package.destination}')
+            print(f'[{self.env.now:.1f} min] New package {package.number}: {package.origin} → {package.destination}')
 
             # Store staff delivers to hub
-            walking_time = random.gauss(10, 1)
+            walking_time = random.gauss(10, 2)
             yield self.env.timeout(walking_time)
-            print(f'[{self.env.now:.1f} min] Package {Store.package_number} dropped at {package.origin}')
+            print(f'[{self.env.now:.1f} min] Package {package.number} dropped at {package.origin}')
+
 
 
 # This class acts as the central server of the app
