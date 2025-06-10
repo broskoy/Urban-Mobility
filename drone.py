@@ -13,60 +13,57 @@ LOAD_TIME = 2  # minutes to load/unload
 # This class handles the behaviour of a drone
 class Drone:
 
-    package = None
-
-    def __init__(self, env):
+    def __init__(self, env, hub):
         self.env = env
+        self.hub = hub
+        self.package = None
         self.action = env.process(self.run())
 
-    def charge(self):
-        yield self.env.timeout(3)
 
     def run(self):
         while True:
-            print(f'[{self.env.now:.1f} min] doin stuff')
+            # Take package
+            self.package = yield self.hub.take_package()
+            print(f'[{self.env.now:.1f} min] Drone taking package {self.package.number}')
+            yield self.env.timeout(2)
+
+            # Fly package
+            print(f'[{self.env.now:.1f} min] Drone delivering')
             yield self.env.timeout(10)
-            print(f'[{self.env.now:.1f} min] not doin stuff')
-            yield self.env.timeout(20)
 
-            # req = yield dispatcher.get_request()
-            # origin, dest = req
+            # Put package
+            print(f'[{self.env.now:.1f} min] Drone putting package')
+            yield self.env.timeout(2)
 
-            # # Loading the package
-            # print(f'[{env.now:.1f} min] {name} arrived at {origin} for pickup')
-            # yield env.timeout(random.gauss(LOAD_TIME, 0.5))
-
-            # # Going to destination
-            # print(f'[{env.now:.1f} min] {name} riding to {dest}')
-            # yield env.timeout(ride_time(origin, dest))
-            
-            # # Delivering the package
-            # print(f'[{env.now:.1f} min] {name} arrived at {dest} for drop-off')
-            # yield env.timeout(random.gauss(LOAD_TIME, 0.5))
-
-            # # Update position
-            # now_loc = dest
-            # dispatcher.free_biker(name)
+            # Fly back
+            print(f'[{self.env.now:.1f} min] Drone returning')
+            yield self.env.timeout(10)
 
 
 
 # This class handles the behaviour of a hub
 class Hub:
 
-    packages = []
-
     def __init__(self, env, location):
         self.env = env
-        self.action = env.process(self.run())
         self.location = location
+
+        self.drones = []
+        self.packages = simpy.Store(env)
+        for i in range(DRONES_PER_HUB):
+            self.drones.append(Drone(env, self))
         print(f'Hub created at {self.location}')
 
+    # add package to hub queue
     def add_package(self, package):
-        print(package.id)
+        self.packages.put(package)
+        print(f'[{self.env.now:.1f} min] Package {package.number} dropped at {package.origin}')
 
-    def run(self):
-        while True:
-            yield self.env.timeout(20000)
+    # take package from hub queue
+    def take_package(self):
+        # package = yield self.packages.get()
+        # print(f'[{self.env.now:.1f} min] Package {package.number} taken from {package.origin}')
+        return self.packages.get()
 
 
 
@@ -82,7 +79,9 @@ class Store:
 
     def run(self):
         while True:
-            yield self.env.timeout(random.expovariate(1.0/60))
+            # wait for a new package randomly
+            no_new_package_time = random.expovariate(1.0/300)
+            yield self.env.timeout(no_new_package_time)
 
             # Add number origin and detination
             package = Package()
@@ -96,16 +95,21 @@ class Store:
             # Store staff delivers to hub
             walking_time = random.gauss(10, 2)
             yield self.env.timeout(walking_time)
-            print(f'[{self.env.now:.1f} min] Package {package.number} dropped at {package.origin}')
+            close_hub = self.server.get_close_hub(self.location)
+            close_hub.add_package(package)
 
 
 
 # This class acts as the central server of the app
 class Server: 
     
+    hubs = {}
     package_number: int = 0
 
     # returns a unique package number
     def get_number(self):
         self.package_number += 1
         return self.package_number
+    
+    def get_close_hub(self, location):
+        return self.hubs[location]

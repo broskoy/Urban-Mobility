@@ -9,18 +9,16 @@ SIM_TIME = 8 * 60 # simulated period (8 hours)
 
 # Start of drone code
 
-def create_stores():
-    for location in LOCATIONS.keys():
-        Store(env, server, location)
-
-def create_hubs():
-    for location in LOCATIONS.keys():
-        Hub(env, location)
-
 env = simpy.Environment()
 server = Server()
-create_hubs()
-create_stores()
+
+server.hubs['Acht'] = Hub(env, 'Acht')
+Store(env, server, 'Acht')
+
+# for location in LOCATIONS.keys():
+#     server.hubs[location] = Hub(env, location)
+#     Store(env, server, location)
+
 env.run(until=SIM_TIME)
 
 
