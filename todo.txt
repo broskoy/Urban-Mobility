@@ -1,4 +1,3 @@
-drone adds package to destination hub
-test with multiple hubs
+drone uses location distances
 hub should create four drones
 add random gauss to drone delay times

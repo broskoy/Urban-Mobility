@@ -12,12 +12,9 @@ SIM_TIME = 8 * 60 # simulated period (8 hours)
 env = simpy.Environment()
 server = Server()
 
-server.hubs['Acht'] = Hub(env, 'Acht')
-Store(env, server, 'Acht')
-
-# for location in LOCATIONS.keys():
-#     server.hubs[location] = Hub(env, location)
-#     Store(env, server, location)
+for location in LOCATIONS.keys():
+    server.hubs[location] = Hub(env, location)
+    Store(env, location)
 
 env.run(until=SIM_TIME)
 
