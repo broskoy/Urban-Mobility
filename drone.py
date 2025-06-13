@@ -5,10 +5,11 @@ from locations import *
 from package import Package
 
 
-DRONES_PER_HUB = 1 # number of drones per hub
+DRONES_PER_HUB = 4 # number of drones per hub
 DRONE_SPEED = 200 # average riding speed meters/minute 
-LOAD_TIME = 2  # minutes to load/unload
-PACKAGE_RATE = 1.0 / 600 # expected packages per minute
+DRONE_LOAD_TIME = 1  # minutes to load/unload
+PACKAGE_RATE = 1.0 / 60 # expected packages per minute
+
 
 def fly_time(origin, dest):
 
@@ -17,6 +18,7 @@ def fly_time(origin, dest):
 
     meters = math.hypot(dx, dy) * 111000 # convert from global coordinates
     return meters / DRONE_SPEED # convert to minutes
+
 
 # This class handles the behaviour of a drone
 class Drone:
@@ -32,22 +34,22 @@ class Drone:
         while True:
             # Take package
             self.package = yield self.from_hub.take_pending_package()
-            print(f'[{self.env.now:.1f} min] Drone taking ({self.package.number})')
-            yield self.env.timeout(1)
+            # print(f'[{self.env.now:.1f} min] Drone taking ({self.package.number})')
+            yield self.env.timeout(DRONE_LOAD_TIME)
 
             # Fly package
-            print(f'[{self.env.now:.1f} min] Drone delivering ({self.package.number})')
+            # print(f'[{self.env.now:.1f} min] Drone delivering ({self.package.number})')
             deliver_time = fly_time(self.package.origin, self.package.destination)
             yield self.env.timeout(deliver_time)
 
             # Put package
-            print(f'[{self.env.now:.1f} min] Drone putting ({self.package.number})')
+            # print(f'[{self.env.now:.1f} min] Drone putting ({self.package.number})')
             to_hub = Server.get_hub(self.package.destination)
             to_hub.add_complete_package(self.package)
-            yield self.env.timeout(1)
+            yield self.env.timeout(DRONE_LOAD_TIME)
 
             # Fly back
-            print(f'[{self.env.now:.1f} min] Drone returning')
+            # print(f'[{self.env.now:.1f} min] Drone returning')
             return_time = fly_time(self.package.origin, self.package.destination)
             yield self.env.timeout(return_time)
 
@@ -74,7 +76,8 @@ class Hub:
     # add package to hub complete queue
     def add_complete_package(self, package):
         self.complete_packages.put(package)
-        print(f'[{self.env.now:.1f} min] Package ({package.number}) added at {self.location}')
+        delivery_delay = self.env.now - package.created_time
+        print(f'[{self.env.now:.1f} min] Package ({package.number}) added at {self.location}, delay: {delivery_delay:.1f}')
 
     # take package from hub pending queue
     def take_pending_package(self):
@@ -106,6 +109,7 @@ class Store:
             package.number = Server.get_number()
             package.origin = self.location
             package.destination = random.choice([l for l in LOCATIONS if l != package.origin])
+            package.created_time = self.env.now
 
             # Print the full request
             print(f'[{self.env.now:.1f} min] New package ({package.number}): {package.origin} → {package.destination}')
