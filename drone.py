@@ -11,6 +11,7 @@ DRONE_LOAD_TIME = 1  # minutes to load/unload
 PACKAGE_RATE = 1.0 / 60 # expected packages per minute
 
 
+# returns the time it takes a drone to travel
 def fly_time(origin, dest):
 
     dx = LOCATIONS[origin][0] - LOCATIONS[dest][0]
@@ -28,6 +29,7 @@ class Drone:
         self.from_hub = hub
         self.package = None
         self.action = env.process(self.run())
+        print(f'Drone created at {self.from_hub.location}')
 
 
     def run(self):
