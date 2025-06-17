@@ -95,9 +95,10 @@ class Hub:
 class Store:
 
     # Start the run process everytime an instance is created.
-    def __init__(self, env, location):
+    def __init__(self, env, location, destination):
         self.env = env
         self.location = location
+        self.destination = destination
         env.process(self.run())
 
     def run(self):
@@ -110,7 +111,7 @@ class Store:
             package = Package()
             package.number = Server.get_number()
             package.origin = self.location
-            package.destination = random.choice([l for l in LOCATIONS if l != package.origin])
+            package.destination = self.destination
             package.created_time = self.env.now
 
             # Print the full request
