@@ -10,36 +10,29 @@ LOCATIONS = {
 # Travel times (minutes) between parcel locker locations (symmetric)
 # Fill it out
 TRAVEL_TIME = {
-    'Winkelcentrum Woensel': {
-        't Barrierke': 18,
-        'Hondsruglaan 116': 10,
-        'Ouverture 214': 11,
-        'Belgiëplein 21': 7
+    'Acht': {
+        'Hugo': 20,
+        'Tongelre': 30,
+        'AH': 12,
+        'AJ': 15,
+        'AAH': 14,
     },
-    't Barrierke': {
-        'Winkelcentrum Woensel': 18,
-        'Frederiklaan nr 108-110': 18
+    'Hugo': {
+        'Tongelre': 25,
+        'AH': 23,
+        'AJ': 24,
+        'AAH': 18,
     },
-    'Hondsruglaan 116': {
-        'Winkelcentrum Woensel': 10
+    'Tongelre': {
+        'AH': 26,
+        'AJ': 21,
+        'AAH': 26,
     },
-    'Ouverture 214': {
-        'Winkelcentrum Woensel': 11
+    'AH': {
+        'AJ': 6,
+        'AAH': 4,
     },
-    'Belgiëplein 21': {
-        'Winkelcentrum Woensel': 7
+    'AJ': {
+        'AAH': 5,
     },
-    'Klein Tongelreplein': {
-        "Cafetaria 't Hofke": 5
-    },
-    "Cafetaria 't Hofke": {
-        'Klein Tongelreplein': 5
-    },
-    'Frederiklaan nr 108-110': {
-        'Hugo de Grootplein': 5,
-        't Barrierke': 18
-    },
-    'Hugo de Grootplein': {
-        'Frederiklaan nr 108-110': 5
-    }
 }
