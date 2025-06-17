@@ -1,22 +1,20 @@
 import simpy
 import random
-import math
 from locations import *
 
 # Financial parameters
-BIKER_PAY_RATE = 0.5  # wage per minute
-PARCEL_FEE = 10 
+BIKER_PAY_RATE = 0.25  # wage per minute
+PARCEL_FEE = 5
 
 
-NUM_BIKERS = 5 # number of cargo-bike riders
+NUM_BIKERS = 6 # number of cargo-bike riders
 CAPACITY_RANGE = (2, 4) # parcels per bike
-BIKE_SPEED = 200 # average riding speed meters/minute 
 LOAD_TIME = 2  # minutes to load/unload
-ARRIVAL_RATE = 1.0 / 60 # events per hour
+ARRIVAL_RATE = 0.4 # (4 * 6) / 60 # 6 - is the amount of areas TO ADJUST?
 
 
 
-# Lookup travel time (minutes) between locker locations FOR BIKES!
+# Lookup travel time (minutes) between locker locations FOR BIKES! TODO
 def ride_time(origin, dest):
     if origin == dest:
         return 0
@@ -27,16 +25,20 @@ def ride_time(origin, dest):
     if dest in TRAVEL_TIME and origin in TRAVEL_TIME[dest]:
         return TRAVEL_TIME[dest][origin]
     # if no direct route defined, return a large default or zero
-    return 0
+    return 30
 
 
 # Biking
 def biker(env, name, dispatcher):
+
     now_loc = random.choice(list(LOCATIONS))
 
     while True:
-        req = yield dispatcher.get_request()
-        origin, dest = req
+        wait_start = env.now
+        item = yield dispatcher.get_request_for(name)
+        origin, dest = item["job"]
+        idle_time = env.now - wait_start
+        dispatcher.total_cost += idle_time * BIKER_PAY_RATE  # pay for waiting
 
         # Going to pick up the package
         travel_to_origin = ride_time(now_loc, origin)
@@ -46,9 +48,12 @@ def biker(env, name, dispatcher):
         
         # Loading the package
         print(f'[{env.now:.1f} min] {name} arrived at {origin} for pickup')
-        load_duration = random.gauss(LOAD_TIME, 0.5)
+        load_duration = max(0, random.gauss(LOAD_TIME, 0.5))
         dispatcher.total_cost += load_duration * BIKER_PAY_RATE
         yield env.timeout(load_duration)
+
+        # package loaded → one slot less
+        dispatcher.remaining[name] -= 1
 
         # Go to destination
         travel_to_dest = ride_time(origin, dest)
@@ -58,7 +63,7 @@ def biker(env, name, dispatcher):
         
         # Deliver the package
         print(f'[{env.now:.1f} min] {name} arrived at {dest} for drop-off')
-        unload_duration = random.gauss(LOAD_TIME, 0.5)
+        unload_duration = max(0, random.gauss(LOAD_TIME, 0.5))
         dispatcher.total_cost += unload_duration * BIKER_PAY_RATE
         yield env.timeout(unload_duration)
 
@@ -71,7 +76,16 @@ def biker(env, name, dispatcher):
 
         # Update position
         now_loc = dest
+
+        if dispatcher.remaining[name] == 0:
+            # rider is out of cargo space → return to locker to reload
+            reload_time = max(0, random.gauss(LOAD_TIME, 0.5))
+            print(f'[{env.now:.1f} min] {name} out of capacity, reloading ({reload_time:.1f} min)')
+            yield env.timeout(reload_time)
+            dispatcher.remaining[name] = dispatcher.capacity[name]
+
         dispatcher.free_biker(name)
+        
 
 
 # Requests
@@ -79,25 +93,41 @@ class Dispatcher:
     def __init__(self, env):
         self.env = env
         self.idle = []
-        self.queue = simpy.Store(env)
+        self.queue = simpy.FilterStore(env)  # allows per‑courier filtering
+        self.backlog = []                   # requests waiting for any courier
         self.total_cost = 0.0
         self.total_revenue = 0.0
+        self.capacity = {}
+        self.remaining = {}
 
     def register(self, biker_name):
+        cap = random.randint(*CAPACITY_RANGE)
+        self.capacity[biker_name] = cap
+        self.remaining[biker_name] = cap
+        # keep location update later; we only track idle status here
         self.idle.append(biker_name)
 
-    def get_request(self):
-        return self.queue.get()
+    def get_request_for(self, biker_name):
+        return self.queue.get(lambda item: item["courier"] == biker_name)
 
     def free_biker(self, biker_name):
-        self.idle.append(biker_name)
+        if self.remaining[biker_name] > 0:
+            if self.backlog:
+                req = self.backlog.pop(0)
+                self.queue.put({"courier": biker_name, "job": req})
+            else:
+                self.idle.append(biker_name)
 
     def dispatch(self, req):
+        # purge riders that ran out of space
+        self.idle = [r for r in self.idle if self.remaining[r] > 0]
+
         if self.idle:
-            b = self.idle.pop(0) # nearest policy to implement
-            self.queue.put(req)
+            rider = self.idle.pop(0)         # FIFO; TODO: nearest‑rider heuristic
+            self.queue.put({"courier": rider, "job": req})
         else:
-            self.queue.put(req)
+            # no one free → stash request
+            self.backlog.append(req)
 
 # demand
 def parcel_generator(env, dispatcher):
@@ -110,25 +140,16 @@ def parcel_generator(env, dispatcher):
         print(f'[{env.now:.1f} min] New parcel request: {origin} → {dest}')
         dispatcher.dispatch((origin, dest))
 
+def setup(env, num_bikers: int = NUM_BIKERS):
 
-def run_simulation(sim_duration_minutes):
-    env = simpy.Environment()
     dispatcher = Dispatcher(env)
-    # register and start bikers
-    for i in range(NUM_BIKERS):
-        name = f'Biker-{i+1}'
+
+    # Register riders and launch their processes
+    for i in range(num_bikers):
+        name = f'Biker-{i + 1}'
         dispatcher.register(name)
         env.process(biker(env, name, dispatcher))
-    # start demand
-    env.process(parcel_generator(env, dispatcher))
-    # run until end of simulated day
-    env.run(until=sim_duration_minutes)
-    # end-of-day summary
-    print('--- End of Day Summary ---')
-    print(f'Total revenue: {dispatcher.total_revenue:.2f}')
-    print(f'Total cost:    {dispatcher.total_cost:.2f}')
-    print(f'Net profit:    {dispatcher.total_revenue - dispatcher.total_cost:.2f}')
 
-if __name__ == '__main__':
-    # simulate 24 hours (1440 minutes)
-    run_simulation(24 * 60)
+    # Launch demand process
+    env.process(parcel_generator(env, dispatcher))
+    return dispatcher
