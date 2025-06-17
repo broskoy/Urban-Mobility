@@ -18,7 +18,6 @@ def setup_drones(env):
     # create one Hub and one Store per location
     for loc in LOCATIONS.keys():
         drone.Server.hubs[loc] = drone.Hub(env, loc)
-        drone.Store(env, loc)
 
     return drone.Server
 
@@ -40,7 +39,7 @@ def run_multimodal_sim():
 
     if hasattr(drone_server, "stats"):
         print("\n--- Drone stats ---")
-        drone_server.stats.pretty_print()
+        # drone_server.stats.pretty_print()
 
 
 # 1 Woensel ->  1 Acht
@@ -54,15 +53,15 @@ def run_multimodal_sim():
 # Start of drone code
 
 env = simpy.Environment()
-server = Server()
+server = drone.Server()
 
 for location in LOCATIONS.keys():
-    server.hubs[location] = Hub(env, location)
+    server.hubs[location] = drone.Hub(env, location)
 
-Store(env, 'Woensel', 'Acht')
-Store(env, 'StrijpS', 'Het Ven')
-Store(env, 'Tongelre', 'tHoffke')
-Store(env, 'Woensel', 'Anschot3')
+drone.Store(env, 'Woensel', 'Acht')
+drone.Store(env, 'StrijpS', 'Het Ven')
+drone.Store(env, 'Tongelre', 'tHoffke')
+drone.Store(env, 'Woensel', 'Anschot3')
 
 env.run(until=SIM_TIME)
 
@@ -76,3 +75,18 @@ env.run(until=SIM_TIME)
 #     disp.register(f'Biker_{i}')
 # env.process(parcel_generator(env, disp))
 # env.run(until=SIM_TIME)
+
+
+# Optional: end‑of‑day summaries
+# print("\n--- Bike finance ---")
+# print(f"Revenue: {bike_dispatcher.total_revenue:.2f}")
+# print(f"Cost:    {bike_dispatcher.total_cost:.2f}")
+# print(f"Profit:  {bike_dispatcher.total_revenue - bike_dispatcher.total_cost:.2f}")
+
+# if hasattr(drone_server, "stats"):
+#     print("\n--- Drone stats ---")
+#     drone_server.stats.pretty_print()
+
+
+# if __name__ == "__main__":
+#     run_multimodal_sim()
