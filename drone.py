@@ -8,16 +8,52 @@ from package import Package
 DRONES_PER_HUB = 4 # number of drones per hub
 DRONE_SPEED = 200 # average riding speed meters/minute 
 DRONE_LOAD_TIME = 1  # minutes to load/unload
-PACKAGE_RATE = 1.0 / 60 # expected packages per minute
+PACKAGE_RATE = 1.0 / 1 # expected packages per minute
 
+location_total_delay = {
+    # from
+    'WoenselA': 0,
+    'Woensel1': 0,
+    'Woensel2': 0,
+    'Woensel3': 0,
+    'StrijpS':  0,
+    'Tongelre': 0,
+    
+    # to
+    'Acht':     0,
+    'Het Ven':  0,
+    'tHoffke':  0,
+    'Anschot1': 0,
+    'Anschot2': 0,
+    'Anschot3': 0
+}
+
+location_total_deliveries = {
+    # from
+    'WoenselA': 0,
+    'Woensel1': 0,
+    'Woensel2': 0,
+    'Woensel3': 0,
+    'StrijpS':  0,
+    'Tongelre': 0,
+    
+    # to
+    'Acht':     0,
+    'Het Ven':  0,
+    'tHoffke':  0,
+    'Anschot1': 0,
+    'Anschot2': 0,
+    'Anschot3': 0
+}
 
 # returns the time it takes a drone to travel
 def fly_time(origin, dest):
 
     dx = LOCATIONS[origin][0] - LOCATIONS[dest][0]
     dy = LOCATIONS[origin][1] - LOCATIONS[dest][1]
-
-    meters = math.hypot(dx, dy) * 111000 # convert from global coordinates
+    
+    meters = math.hypot(dx, dy) * 83000 # convert from global coordinates
+    
     return meters / DRONE_SPEED # convert to minutes
 
 
@@ -29,7 +65,7 @@ class Drone:
         self.from_hub = hub
         self.package = None
         self.action = env.process(self.run())
-        print(f'Drone created at {self.from_hub.location}')
+        # print(f'Drone created at {self.from_hub.location}')
 
 
     def run(self):
@@ -80,6 +116,8 @@ class Hub:
         self.complete_packages.put(package)
         delivery_delay = self.env.now - package.created_time
         print(f'[{self.env.now:.1f} min] Package ({package.number}) added at {self.location}, delay: {delivery_delay:.1f}')
+        location_total_delay[self.location] += delivery_delay
+        location_total_deliveries[self.location] += 1
 
     # take package from hub pending queue
     def take_pending_package(self):
@@ -118,7 +156,7 @@ class Store:
             print(f'[{self.env.now:.1f} min] New package ({package.number}): {package.origin} → {package.destination}')
 
             # Store staff delivers to hub
-            walking_time = random.gauss(10, 2)
+            walking_time = random.gauss(4, 1)
             yield self.env.timeout(walking_time)
             close_hub = Server.get_hub(self.location)
             close_hub.add_pending_package(package)

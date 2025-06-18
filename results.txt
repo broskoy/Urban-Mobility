@@ -1,0 +1,141 @@
+<5 package / h>
+
+Acht
+deliveries:30
+average delay:28.849649381091695
+
+Het Ven
+deliveries:31
+average delay:10.935176438421147
+
+tHoffke
+deliveries:30
+average delay:11.47561854952561
+
+Anschot1
+deliveries:30
+average delay:13.566455983240411
+
+Anschot2
+deliveries:33
+average delay:9.445250760179118
+
+Anschot3
+deliveries:31
+average delay:13.164295902444277
+
+
+
+
+<10 package / h>
+
+Acht
+deliveries:42
+average delay:61.19809327937124
+
+Het Ven
+deliveries:56
+average delay:11.010474762779975
+
+tHoffke
+deliveries:42
+average delay:11.414548951975464
+
+Anschot1
+deliveries:44
+average delay:13.397490876571897
+
+Anschot2
+deliveries:39
+average delay:9.296759245015322
+
+Anschot3
+deliveries:45
+average delay:13.494474010754532
+
+
+
+
+<20 package / h>
+
+Acht
+deliveries:42
+average delay:109.41469236147034
+
+Het Ven
+deliveries:65
+average delay:10.676880231797213
+
+tHoffke
+deliveries:63
+average delay:11.546189905716185
+
+Anschot1
+deliveries:63
+average delay:13.847500568656697
+
+Anschot2
+deliveries:74
+average delay:9.323917266282264
+
+Anschot3
+deliveries:71
+average delay:13.323687082740566
+
+
+
+
+<40 packages / h>
+
+Acht
+deliveries:44
+average delay:138.31455360726707
+
+Het Ven
+deliveries:88
+average delay:10.879064728821172
+
+tHoffke
+deliveries:90
+average delay:11.410092769365741
+
+Anschot1
+deliveries:91
+average delay:14.548111617827555
+
+Anschot2
+deliveries:88
+average delay:9.267853063693638
+
+Anschot3
+deliveries:85
+average delay:14.13756461327539
+
+
+
+
+<60 packages / h>
+
+Acht
+deliveries:43
+average delay:138.39870543800478
+
+Het Ven
+deliveries:97
+average delay:10.849250501246644
+
+tHoffke
+deliveries:95
+average delay:11.4557670573851
+
+Anschot1
+deliveries:88
+average delay:14.307040387184003
+
+Anschot2
+deliveries:90
+average delay:9.357668592011603
+
+Anschot3
+deliveries:93
+average delay:15.245817008464352
