@@ -42,12 +42,11 @@ def setup_drones(env):
 
 
 def run_multimodal_sim():
-    """Launch bikes and drones in one shared SimPy environment."""
     env = simpy.Environment()
 
     # Initialise both transport modes
     bike_dispatcher = setup_bikes(env)
-    drone_server = setup_drones(env)
+    # drone_server = setup_drones(env)
 
     env.run(until=SIM_TIME)
 
@@ -57,10 +56,11 @@ def run_multimodal_sim():
     print(f"Cost:    {bike_dispatcher.total_cost:.2f}")
     print(f"Profit:  {bike_dispatcher.total_revenue - bike_dispatcher.total_cost:.2f}")
 
-    if hasattr(drone_server, "stats"):
-        print("\n--- Drone stats ---")
-        # drone_server.stats.pretty_print()
 
+    
+    # if hasattr(drone_server, "stats"):
+    #     print("\n--- Drone stats ---")
+    #     # drone_server.stats.pretty_print()
 
 # Start of drone code
 
@@ -84,28 +84,6 @@ for location in LOCATIONS:
     else:
         print(f'average delay:{drone.location_total_delay[location] / drone.location_total_deliveries[location]}\n')
 
-# Staret of bike code
 
-# env = simpy.Environment()
-# disp = Dispatcher(env)
-# # create bikers
-# for i in range(NUM_BIKERS):
-#     b = env.process(biker(env, f'Biker_{i}', disp))
-#     disp.register(f'Biker_{i}')
-# env.process(parcel_generator(env, disp))
-# env.run(until=SIM_TIME)
-
-
-# Optional: end‑of‑day summaries
-# print("\n--- Bike finance ---")
-# print(f"Revenue: {bike_dispatcher.total_revenue:.2f}")
-# print(f"Cost:    {bike_dispatcher.total_cost:.2f}")
-# print(f"Profit:  {bike_dispatcher.total_revenue - bike_dispatcher.total_cost:.2f}")
-
-# if hasattr(drone_server, "stats"):
-#     print("\n--- Drone stats ---")
-#     drone_server.stats.pretty_print()
-
-
-# if __name__ == "__main__":
-#     run_multimodal_sim()
+if __name__ == "__main__":
+    run_multimodal_sim()
