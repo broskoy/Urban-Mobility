@@ -23,12 +23,11 @@ def setup_drones(env):
     return drone.Server
 
 def run_multimodal_sim():
-    """Launch bikes and drones in one shared SimPy environment."""
     env = simpy.Environment()
 
     # Initialise both transport modes
     bike_dispatcher = setup_bikes(env)
-    drone_server = setup_drones(env)
+    # drone_server = setup_drones(env)
 
     env.run(until=SIM_TIME)
 
@@ -38,9 +37,9 @@ def run_multimodal_sim():
     print(f"Cost:    {bike_dispatcher.total_cost:.2f}")
     print(f"Profit:  {bike_dispatcher.total_revenue - bike_dispatcher.total_cost:.2f}")
 
-    if hasattr(drone_server, "stats"):
-        print("\n--- Drone stats ---")
-        drone_server.stats.pretty_print()
+    # if hasattr(drone_server, "stats"):
+    #     print("\n--- Drone stats ---")
+    #     drone_server.stats.pretty_print()
 
 
 if __name__ == "__main__":
