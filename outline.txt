@@ -4,7 +4,7 @@
 If package is available deliver 
 Dock at the other hub
 Return to previous hub
-Charge
+Dock
 Repeat *
 
 
@@ -20,8 +20,8 @@ Drop bike at hub and go home
 
 
 <Hub>
-Has charging spots
-Contains a number of packages
+Has four drones
+Contains a queue of packages
 
 
 <Store staff>

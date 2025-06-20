@@ -30,19 +30,19 @@ def generate_biker_assignments(num_bikers):
 
 
 # Financial parameters
-BIKER_PAY_RATE = 0.25  # wage per minute
-PARCEL_FEE = 3
+BIKER_PAY_RATE = 0.25  # biker wage per minute
+PARCEL_FEE = 5 # revenue earned per parcel
 
-NUM_BIKERS = 18 # number of cargo-bike riders
+NUM_BIKERS = 8 # number of cargo-bike riders
 CAPACITY_RANGE = (3, 6) # parcels per bike
 LOAD_TIME = 1  # minutes to load/unload
 WAIT_TIME = 5  # minutes to wait at pickup location for batching parcels
-ARRIVAL_RATE = 1379 / 8 / 60
+ARRIVAL_RATE = 1.0 / 2 # 1379 / 8 / 60
 
 # Generate assignments based on NUM_BIKERS
 BIKER_ASSIGNMENTS = generate_biker_assignments(NUM_BIKERS)
 
-# Lookup travel time (minutes) between locker locations FOR BIKES!
+
 # Lookup travel time (minutes) between locker locations FOR BIKES!
 def ride_time(origin, dest):
     if origin == dest:
@@ -65,6 +65,8 @@ def ride_time(origin, dest):
     # If one is a base and the other isn't, but no route is defined, use 5 minutes
     # This handles cases where bikers need to return to base from any destination
     return 5
+
+
 # Biking
 def biker(env, name, dispatcher):
     # Each biker starts at their assigned origin location
@@ -151,6 +153,7 @@ def biker(env, name, dispatcher):
             dispatcher.remaining[name] = dispatcher.capacity[name]
 
         dispatcher.free_biker(name)
+
 
 # Requests
 class Dispatcher:

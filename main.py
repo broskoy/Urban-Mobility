@@ -3,6 +3,7 @@ from locations import LOCATIONS
 import drone  # access drone module directly
 from bike import setup as setup_bikes
 
+
 # Simulated period (8 hours)
 SIM_TIME = 8 * 60  # minutes
 
@@ -34,11 +35,13 @@ def setup_drones(env):
     drone.Server.hubs.clear()
     drone.Server.package_number = 0
 
+    # print_fly_times()
+    add_stores(env)
+    drone.Server()
+
     # create one Hub and one Store per location
     for loc in LOCATIONS.keys():
         drone.Server.hubs[loc] = drone.Hub(env, loc)
-
-    return drone.Server
 
 
 def run_multimodal_sim():
@@ -46,43 +49,23 @@ def run_multimodal_sim():
 
     # Initialise both transport modes
     bike_dispatcher = setup_bikes(env)
-    # drone_server = setup_drones(env)
+    setup_drones(env)
 
     env.run(until=SIM_TIME)
 
-    # Optional: end‑of‑day summaries
-    print("\n--- Bike finance ---")
+    # bike end‑of‑day summaries
+    print("\n\n--- Bike finance ---")
     print(f"Revenue: {bike_dispatcher.total_revenue:.2f}")
     print(f"Cost:    {bike_dispatcher.total_cost:.2f}")
     print(f"Profit:  {bike_dispatcher.total_revenue - bike_dispatcher.total_cost:.2f}")
 
-
-    
-    # if hasattr(drone_server, "stats"):
-    #     print("\n--- Drone stats ---")
-    #     # drone_server.stats.pretty_print()
-
-# Start of drone code
-
-# print_fly_times()
-
-env = simpy.Environment()
-server = drone.Server()
-
-for location in LOCATIONS.keys():
-    server.hubs[location] = drone.Hub(env, location)
-
-add_stores(env)
-
-env.run(until=SIM_TIME)
-
-for location in LOCATIONS:
-    print(location)
-    print(f'deliveries:{drone.location_total_deliveries[location]}')
-    if (drone.location_total_deliveries[location] == 0):
-        print(0)
-    else:
-        print(f'average delay:{drone.location_total_delay[location] / drone.location_total_deliveries[location]}\n')
+    # drone end‑of‑day summaries
+    print("\n\n--- Drone stats ---")
+    for location in LOCATIONS:
+        if (drone.location_total_deliveries[location] != 0):
+            print(location)
+            print(f'deliveries: {drone.location_total_deliveries[location]}')
+            print(f'average delay: {drone.location_total_delay[location] / drone.location_total_deliveries[location]}\n')
 
 
 if __name__ == "__main__":
