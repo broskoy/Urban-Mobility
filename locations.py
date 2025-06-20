@@ -39,29 +39,16 @@ LOCATIONS = {
 
 # Travel times (minutes) between parcel locker locations (symmetric)
 TRAVEL_TIME = {
-    'Acht': {
-        'Hugo': 20,
-        'Tongelre': 30,
-        'AH': 12,
-        'AJ': 15,
-        'AAH': 14,
+    'Woensel': {
+        'Barrierke': 18,
+        'Hondsruglaan ': 10,
+        'AH': 11,
+        'Jumbo': 7,
     },
-    'Hugo': {
-        'Tongelre': 25,
-        'AH': 23,
-        'AJ': 24,
-        'AAH': 18,
+    'Tongelreplein': {
+        'Hofke': 5,
     },
-    'Tongelre': {
-        'AH': 26,
-        'AJ': 21,
-        'AAH': 26,
-    },
-    'AH': {
-        'AJ': 6,
-        'AAH': 4,
-    },
-    'AJ': {
-        'AAH': 5,
-    },
+    'Frederiklaan ': {
+        'Hugo': 5,
+    }
 }
