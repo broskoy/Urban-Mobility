@@ -64,7 +64,7 @@ def run_multimodal_sim():
 
 # Start of drone code
 
-print_fly_times()
+# print_fly_times()
 
 env = simpy.Environment()
 server = drone.Server()
